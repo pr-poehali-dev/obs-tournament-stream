@@ -2,28 +2,15 @@ import { useState, useEffect, useRef } from "react";
 
 const TEAM_LEFT = "ALPHA";
 const TEAM_RIGHT = "OMEGA";
-const MATCH_TITLE = "GRAND FINALS · SEASON 7";
+const MATCH_TITLE = "GRAND FINALS";
+const SEASON = "SEASON VII";
 
 export default function Index() {
   const [scoreLeft, setScoreLeft] = useState(2);
   const [scoreRight, setScoreRight] = useState(1);
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(true);
-  const [glitch, setGlitch] = useState(false);
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; speed: number; opacity: number }[]>([]);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    const pts = Array.from({ length: 30 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 1920,
-      y: Math.random() * 1080,
-      size: Math.random() * 2 + 0.5,
-      speed: Math.random() * 0.4 + 0.1,
-      opacity: Math.random() * 0.5 + 0.1,
-    }));
-    setParticles(pts);
-  }, []);
 
   useEffect(() => {
     if (running) {
@@ -34,176 +21,129 @@ export default function Index() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [running]);
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      setGlitch(true);
-      setTimeout(() => setGlitch(false), 160);
-    }, 4500);
-    return () => clearInterval(id);
-  }, []);
-
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
+  const total = scoreLeft + scoreRight;
+  const leftPct = total === 0 ? 50 : (scoreLeft / total) * 100;
 
   return (
-    <div className="obs-root">
-      {/* Ambient background layers */}
-      <div className="bg-deep" />
-      <div className="bg-grid" />
-      <div className="bg-vignette" />
-      <div className="bg-scanlines" />
+    <div className="root">
 
-      {/* Floating particles */}
-      <svg className="particles-svg" width="1920" height="1080">
-        {particles.map((p) => (
-          <circle
-            key={p.id}
-            cx={p.x}
-            cy={p.y}
-            r={p.size}
-            fill="var(--neon-cyan)"
-            opacity={p.opacity}
-            style={{ animation: `particleFloat ${6 + p.speed * 10}s ease-in-out ${p.id * 0.3}s infinite alternate` }}
-          />
-        ))}
-      </svg>
+      {/* ── TOP BAR ── */}
+      <div className="top-bar">
+        <span className="top-season">{SEASON}</span>
+        <div className="top-center">
+          <span className="top-match">{MATCH_TITLE}</span>
+        </div>
+        <div className="live-pill">
+          <span className="live-dot" />
+          LIVE
+        </div>
+      </div>
 
-      {/* Outer frame */}
-      <div className="frame-outer" />
-      <div className="corner corner-tl"><div className="corner-inner" /></div>
-      <div className="corner corner-tr"><div className="corner-inner" /></div>
-      <div className="corner corner-bl"><div className="corner-inner" /></div>
-      <div className="corner corner-br"><div className="corner-inner" /></div>
+      {/* ── SCOREBOARD ── */}
+      <div className="scoreboard">
 
-      {/* HEADER */}
-      <header className="hud-header">
-        {/* LEFT TEAM */}
-        <div className="team-block left">
-          <div className="team-bg-stripe left-stripe" />
-          <div className="team-name-col">
-            <div className="team-label">TEAM</div>
-            <div className={`team-name left-name ${glitch ? "glitch-text" : ""}`}>{TEAM_LEFT}</div>
-            <div className="team-underline left-ul" />
+        {/* LEFT */}
+        <div className="team left-team">
+          <div className="team-info">
+            <span className="team-tag">HOME</span>
+            <h1 className="team-name">{TEAM_LEFT}</h1>
           </div>
-          <div className="score-section">
-            <button className="score-btn minus" onClick={() => setScoreLeft((s) => Math.max(0, s - 1))}>−</button>
-            <div className="score-hex">
-              <div className="hex-bg" />
-              <div className="hex-ring" />
-              <span className={`score-num ${glitch ? "glitch-text" : ""}`}>{scoreLeft}</span>
+          <div className="score-wrap">
+            <button className="adj-btn" onClick={() => setScoreLeft(s => Math.max(0, s - 1))}>−</button>
+            <div className="score-box left-score-box">
+              <span className="score">{scoreLeft}</span>
             </div>
-            <button className="score-btn plus" onClick={() => setScoreLeft((s) => s + 1)}>+</button>
+            <button className="adj-btn" onClick={() => setScoreLeft(s => s + 1)}>+</button>
           </div>
         </div>
 
         {/* CENTER */}
-        <div className="center-block">
-          <div className="match-title-wrap">
-            <div className="title-line" />
-            <span className="match-title">{MATCH_TITLE}</span>
-            <div className="title-line" />
+        <div className="center-col">
+          <div
+            className="timer-block"
+            onClick={() => setRunning(r => !r)}
+            title="Пауза / старт"
+          >
+            <span className="timer">{mm}:{ss}</span>
+            <span className="timer-status">{running ? "RUNNING" : "PAUSED"}</span>
           </div>
-
-          <div className="timer-outer" onClick={() => setRunning((r) => !r)} title="Нажми для паузы/старта">
-            <div className="timer-orbit orbit-1" />
-            <div className="timer-orbit orbit-2" />
-            <div className="timer-orbit orbit-3" />
-            <div className="timer-core">
-              <span className={`timer-text ${glitch ? "glitch-text" : ""}`}>{mm}:{ss}</span>
-              <span className="timer-state">{running ? "● RUN" : "⏸ PAUSED"}</span>
-            </div>
-          </div>
-
-          <div className="live-badge">
-            <span className="live-dot" />
-            <span className="live-text">LIVE</span>
-            <span className="live-pulse-ring" />
+          <div className="vs-bar">
+            <div className="vs-fill" style={{ width: `${leftPct}%` }} />
           </div>
         </div>
 
-        {/* RIGHT TEAM */}
-        <div className="team-block right">
-          <div className="score-section">
-            <button className="score-btn minus" onClick={() => setScoreRight((s) => Math.max(0, s - 1))}>−</button>
-            <div className="score-hex">
-              <div className="hex-bg right-hex" />
-              <div className="hex-ring right-ring" />
-              <span className={`score-num right-score ${glitch ? "glitch-text" : ""}`}>{scoreRight}</span>
+        {/* RIGHT */}
+        <div className="team right-team">
+          <div className="score-wrap">
+            <button className="adj-btn" onClick={() => setScoreRight(s => Math.max(0, s - 1))}>−</button>
+            <div className="score-box right-score-box">
+              <span className="score">{scoreRight}</span>
             </div>
-            <button className="score-btn plus right-plus" onClick={() => setScoreRight((s) => s + 1)}>+</button>
+            <button className="adj-btn" onClick={() => setScoreRight(s => s + 1)}>+</button>
           </div>
-          <div className="team-name-col right-col">
-            <div className="team-label">TEAM</div>
-            <div className={`team-name right-name ${glitch ? "glitch-text" : ""}`}>{TEAM_RIGHT}</div>
-            <div className="team-underline right-ul" />
+          <div className="team-info right-info">
+            <span className="team-tag">AWAY</span>
+            <h1 className="team-name right-team-name">{TEAM_RIGHT}</h1>
           </div>
-          <div className="team-bg-stripe right-stripe" />
         </div>
-      </header>
 
-      {/* DIVIDER */}
-      <div className="hud-divider">
-        <div className="divider-beam left-beam" />
-        <div className="divider-center-icon">◆</div>
-        <div className="divider-beam right-beam" />
       </div>
 
-      {/* STREAMS */}
-      <main className="streams-area">
-        <div className="stream-wrap">
-          <div className="stream-frame" />
-          <div className="stream-glow left-glow" />
-          <div className="stream-label left-lbl">
-            <span className="lbl-bar" />
-            <span className="lbl-text">POV · {TEAM_LEFT}</span>
-            <span className="lbl-rec">● REC</span>
+      {/* ── STREAMS ── */}
+      <div className="streams">
+
+        <div className="stream-block">
+          <div className="stream-header">
+            <span className="stream-team-label">{TEAM_LEFT}</span>
+            <span className="stream-pov">PLAYER POV</span>
           </div>
-          <div className="stream-content">
-            <div className="stream-placeholder">
-              <div className="ph-ring" />
-              <div className="ph-icon">◈</div>
-              <p className="ph-hint">Browser Source</p>
-              <p className="ph-sub">Вставьте URL стрима в OBS</p>
+          <div className="stream-screen">
+            <div className="screen-placeholder">
+              <div className="placeholder-crosshair">
+                <div className="ch-h" /><div className="ch-v" />
+              </div>
+              <p className="ph-text">BROWSER SOURCE</p>
+              <p className="ph-sub">Добавьте URL стрима в OBS</p>
             </div>
           </div>
         </div>
 
-        <div className="vs-divider">
-          <div className="vs-line" />
-          <div className="vs-badge">VS</div>
-          <div className="vs-line" />
+        <div className="stream-divider">
+          <div className="sd-line" />
+          <div className="sd-vs">VS</div>
+          <div className="sd-line" />
         </div>
 
-        <div className="stream-wrap">
-          <div className="stream-frame right-frame" />
-          <div className="stream-glow right-glow" />
-          <div className="stream-label right-lbl">
-            <span className="lbl-bar right-bar" />
-            <span className="lbl-text">POV · {TEAM_RIGHT}</span>
-            <span className="lbl-rec">● REC</span>
+        <div className="stream-block">
+          <div className="stream-header right-header">
+            <span className="stream-pov">PLAYER POV</span>
+            <span className="stream-team-label right-label">{TEAM_RIGHT}</span>
           </div>
-          <div className="stream-content">
-            <div className="stream-placeholder">
-              <div className="ph-ring right-ph-ring" />
-              <div className="ph-icon right-ph-icon">◈</div>
-              <p className="ph-hint">Browser Source</p>
-              <p className="ph-sub">Вставьте URL стрима в OBS</p>
+          <div className="stream-screen">
+            <div className="screen-placeholder">
+              <div className="placeholder-crosshair">
+                <div className="ch-h" /><div className="ch-v" />
+              </div>
+              <p className="ph-text">BROWSER SOURCE</p>
+              <p className="ph-sub">Добавьте URL стрима в OBS</p>
             </div>
           </div>
         </div>
-      </main>
 
-      {/* FOOTER */}
-      <footer className="hud-footer">
-        <div className="footer-track" />
-        <div className="footer-content">
-          <span className="footer-item">◆ OFFICIAL BROADCAST</span>
-          <span className="footer-dot">·</span>
-          <span className="footer-item highlight">MAP 3 OF 5</span>
-          <span className="footer-dot">·</span>
-          <span className="footer-item">SEASON 7 CHAMPIONSHIP ◆</span>
+      </div>
+
+      {/* ── FOOTER ── */}
+      <div className="footer">
+        <div className="footer-rule" />
+        <div className="footer-row">
+          <span className="footer-left">OFFICIAL BROADCAST</span>
+          <span className="footer-center">MAP 3 OF 5</span>
+          <span className="footer-right">SEASON VII CHAMPIONSHIP</span>
         </div>
-      </footer>
+      </div>
+
     </div>
   );
 }
