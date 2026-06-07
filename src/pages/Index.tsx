@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef } from "react";
 
-const TEAM_LEFT = "ALPHA";
+const TEAM_LEFT  = "ALPHA";
 const TEAM_RIGHT = "OMEGA";
 const MATCH_TITLE = "GRAND FINALS";
 const SEASON = "SEASON VII";
 
 export default function Index() {
-  const [scoreLeft, setScoreLeft] = useState(2);
+  const [scoreLeft,  setScoreLeft]  = useState(2);
   const [scoreRight, setScoreRight] = useState(1);
-  const [seconds, setSeconds] = useState(0);
-  const [running, setRunning] = useState(true);
+  const [seconds,    setSeconds]    = useState(0);
+  const [running,    setRunning]    = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (running) {
-      intervalRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
+      intervalRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
@@ -23,7 +23,7 @@ export default function Index() {
 
   const mm = String(Math.floor(seconds / 60)).padStart(2, "0");
   const ss = String(seconds % 60).padStart(2, "0");
-  const total = scoreLeft + scoreRight;
+  const total   = scoreLeft + scoreRight;
   const leftPct = total === 0 ? 50 : (scoreLeft / total) * 100;
 
   return (
@@ -36,15 +36,17 @@ export default function Index() {
           <span className="top-match">{MATCH_TITLE}</span>
         </div>
         <div className="live-pill">
-          <span className="live-dot" />
-          LIVE
+          <div className="live-badge-inner">
+            <span className="live-dot" />
+            LIVE
+          </div>
         </div>
       </div>
 
       {/* ── SCOREBOARD ── */}
       <div className="scoreboard">
 
-        {/* LEFT */}
+        {/* LEFT TEAM */}
         <div className="team left-team">
           <div className="team-info">
             <span className="team-tag">HOME</span>
@@ -61,11 +63,7 @@ export default function Index() {
 
         {/* CENTER */}
         <div className="center-col">
-          <div
-            className="timer-block"
-            onClick={() => setRunning(r => !r)}
-            title="Пауза / старт"
-          >
+          <div className="timer-block" onClick={() => setRunning(r => !r)} title="Пауза / старт">
             <span className="timer">{mm}:{ss}</span>
             <span className="timer-status">{running ? "RUNNING" : "PAUSED"}</span>
           </div>
@@ -74,7 +72,7 @@ export default function Index() {
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT TEAM */}
         <div className="team right-team">
           <div className="score-wrap">
             <button className="adj-btn" onClick={() => setScoreRight(s => Math.max(0, s - 1))}>−</button>
@@ -92,46 +90,51 @@ export default function Index() {
       </div>
 
       {/* ── STREAMS ── */}
-      <div className="streams">
+      <div className="streams-section">
+        <div className="streams">
 
-        <div className="stream-block">
-          <div className="stream-header">
-            <span className="stream-team-label">{TEAM_LEFT}</span>
-            <span className="stream-pov">PLAYER POV</span>
-          </div>
-          <div className="stream-screen">
-            <div className="screen-placeholder">
-              <div className="placeholder-crosshair">
-                <div className="ch-h" /><div className="ch-v" />
+          {/* Stream LEFT */}
+          <div className="stream-block">
+            <div className="stream-header">
+              <span className="stream-team-label">{TEAM_LEFT}</span>
+              <span className="stream-pov">PLAYER POV</span>
+            </div>
+            <div className="stream-screen">
+              <div className="screen-placeholder">
+                <div className="placeholder-crosshair">
+                  <div className="ch-h" /><div className="ch-v" />
+                </div>
+                <p className="ph-text">BROWSER SOURCE</p>
+                <p className="ph-sub">Добавьте URL стрима в OBS</p>
               </div>
-              <p className="ph-text">BROWSER SOURCE</p>
-              <p className="ph-sub">Добавьте URL стрима в OBS</p>
             </div>
           </div>
-        </div>
 
-        <div className="stream-divider">
-          <div className="sd-line" />
-          <div className="sd-vs">VS</div>
-          <div className="sd-line" />
-        </div>
-
-        <div className="stream-block">
-          <div className="stream-header right-header">
-            <span className="stream-pov">PLAYER POV</span>
-            <span className="stream-team-label right-label">{TEAM_RIGHT}</span>
+          {/* VS divider */}
+          <div className="stream-divider">
+            <div className="sd-line" />
+            <div className="sd-vs">VS</div>
+            <div className="sd-line" />
           </div>
-          <div className="stream-screen">
-            <div className="screen-placeholder">
-              <div className="placeholder-crosshair">
-                <div className="ch-h" /><div className="ch-v" />
+
+          {/* Stream RIGHT */}
+          <div className="stream-block">
+            <div className="stream-header right-header">
+              <span className="stream-pov">PLAYER POV</span>
+              <span className="stream-team-label right-label">{TEAM_RIGHT}</span>
+            </div>
+            <div className="stream-screen">
+              <div className="screen-placeholder">
+                <div className="placeholder-crosshair">
+                  <div className="ch-h" /><div className="ch-v" />
+                </div>
+                <p className="ph-text">BROWSER SOURCE</p>
+                <p className="ph-sub">Добавьте URL стрима в OBS</p>
               </div>
-              <p className="ph-text">BROWSER SOURCE</p>
-              <p className="ph-sub">Добавьте URL стрима в OBS</p>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
 
       {/* ── FOOTER ── */}
